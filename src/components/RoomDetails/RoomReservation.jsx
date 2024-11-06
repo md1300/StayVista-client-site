@@ -3,9 +3,13 @@ import Button from '../Shared/Button/Button';
 import { DateRange } from 'react-date-range'
 import { useState } from 'react';
 import { differenceInCalendarDays } from 'date-fns';
+import BookingModal from '../Modat/BookingModal';
+import useAuth from '../../hooks/useAuth';
 
-const RoomReservation = ({ room }) => {
-  console.log('started data ----->', new Date(room.from).toLocaleDateString(),'ended date ------->', new Date(room.to).toLocaleDateString())
+const RoomReservation = ({ room,refetch }) => {
+  // console.log('started data ----->', new Date(room.from).toLocaleDateString(),'ended date ------->', new Date(room.to).toLocaleDateString())
+  const [isOpen,setIsOpen]=useState(false)
+  const {user}=useAuth()
   const [state, setState] = useState([
     {
       startDate: new Date(room.from),
@@ -13,6 +17,11 @@ const RoomReservation = ({ room }) => {
       key: 'selection'
     }
   ]);
+
+  const closeModal=()=>{
+    setIsOpen(false)
+  }
+
 // total days * price ----------
   const totalPrice=parseInt(
     differenceInCalendarDays(new Date(room.to),new Date(room.from))
@@ -47,8 +56,16 @@ const RoomReservation = ({ room }) => {
 /></div>
       <hr />
       <div className='p-4'>
-        <Button label={'Reserve'} />
+        <Button disabled={room?.booked===true} 
+        onClick={()=>setIsOpen(true)}
+         label={room?.booked===true?'booked':'Reserve'} />
       </div>
+      <BookingModal
+      isOpen={isOpen}
+      refetch={refetch}
+      closeModal={closeModal}
+      bookingInfo={{...room,price:totalPrice,guest:{name:user?.displayName,email:user.email,photo:user.photoURL}}}
+      />
       <hr />
       <div className='p-4 flex items-center justify-between font-semibold text-lg'>
         <div>Total</div>

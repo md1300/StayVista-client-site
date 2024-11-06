@@ -9,14 +9,27 @@ import { NavLink } from 'react-router-dom'
 import useAuth from '../../../hooks/useAuth'
 import { Link } from 'react-router-dom'
 import { MdHomeWork } from 'react-icons/md'
+import useRole from '../../../hooks/useRole'
+import MenuItem from './menu/MenuItem'
+import HostMenu from './menu/HostMenu'
+import AdminMenu from './menu/AdminMenu'
+import GuestMenu from './menu/GuestMenu'
+import ToggleBtn from '../../Shared/Button/ToggleBtn'
 
 const Sidebar = () => {
   const { logOut } = useAuth()
   const [isActive, setActive] = useState(false)
+ const [toggle,setToggle]=useState(true)
+  const [role,isLoading]=useRole()
+  console.log(role,isLoading)
 
   // Sidebar Responsive Handler
   const handleToggle = () => {
     setActive(!isActive)
+  }
+  const toggleHandler=async(event) =>{
+    // console.log(event.target.checked)
+    setToggle(event.target.checked)
   }
   return (
     <>
@@ -68,50 +81,16 @@ const Sidebar = () => {
           {/* Nav Items */}
           <div className='flex flex-col justify-between flex-1 mt-6'>
             {/* Conditional toggle button here.. */}
-
+           {role==='host' && <ToggleBtn toggleHandler={toggleHandler} toggle={toggle} />}
             {/*  Menu Items */}
             <nav>
               {/* Statistics */}
-              <NavLink
-                to='/dashboard'
-                end
-                className={({ isActive }) =>
-                  `flex items-center px-4 py-2 my-5  transition-colors duration-300 transform  hover:bg-gray-300   hover:text-gray-700 ${
-                    isActive ? 'bg-gray-300  text-gray-700' : 'text-gray-600'
-                  }`
-                }
-              >
-                <BsGraphUp className='w-5 h-5' />
+              <MenuItem label='Statistics' address='/dashboard' icon={BsGraphUp}/>
+              
 
-                <span className='mx-4 font-medium'>Statistics</span>
-              </NavLink>
-
-              {/* Add Room */}
-              <NavLink
-                to='add-room'
-                className={({ isActive }) =>
-                  `flex items-center px-4 py-2 my-5  transition-colors duration-300 transform  hover:bg-gray-300   hover:text-gray-700 ${
-                    isActive ? 'bg-gray-300  text-gray-700' : 'text-gray-600'
-                  }`
-                }
-              >
-                <BsFillHouseAddFill className='w-5 h-5' />
-
-                <span className='mx-4 font-medium'>Add Room</span>
-              </NavLink>
-              {/* My Listing */}
-              <NavLink
-                to='my-listings'
-                className={({ isActive }) =>
-                  `flex items-center px-4 py-2 my-5  transition-colors duration-300 transform  hover:bg-gray-300   hover:text-gray-700 ${
-                    isActive ? 'bg-gray-300  text-gray-700' : 'text-gray-600'
-                  }`
-                }
-              >
-                <MdHomeWork className='w-5 h-5' />
-
-                <span className='mx-4 font-medium'>My Listings</span>
-              </NavLink>
+             {role==='guest' && <GuestMenu/>}
+             {role==='host' ? toggle? <HostMenu/>:<GuestMenu/>:undefined}
+             {role==='admin' && <AdminMenu/>}
             </nav>
           </div>
         </div>
@@ -120,18 +99,8 @@ const Sidebar = () => {
           <hr />
 
           {/* Profile Menu */}
-          <NavLink
-            to='/dashboard/profile'
-            className={({ isActive }) =>
-              `flex items-center px-4 py-2 my-5  transition-colors duration-300 transform  hover:bg-gray-300   hover:text-gray-700 ${
-                isActive ? 'bg-gray-300  text-gray-700' : 'text-gray-600'
-              }`
-            }
-          >
-            <FcSettings className='w-5 h-5' />
-
-            <span className='mx-4 font-medium'>Profile</span>
-          </NavLink>
+          <MenuItem label='Profile' address='/dashboard/profile' icon={GrLogout} /> 
+          
           <button
             onClick={logOut}
             className='flex w-full items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-300   hover:text-gray-700 transition-colors duration-300 transform'
